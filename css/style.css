@@ -1,3 +1,6 @@
+body {
+  background: url("/images/4.jpg");
+}
 *,
 *::after,
 *::before {
